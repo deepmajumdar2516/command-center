@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useProjects2, useProject2Files, useProject2Links, useTasks } from '../stores';
 import { api, BASE_URL } from '../services/api';
-import { 
-  Folder, Plus, Search, Filter, Calendar as CalIcon, Tag, 
+import {
+  Folder, Plus, Search, Filter, Calendar as CalIcon, Tag,
   Trash2, Edit2, Link as LinkIcon, FileText, CheckSquare, Clock, Paperclip, ExternalLink, Download
 } from 'lucide-react';
 import { format } from 'date-fns';
 
 export function Projects2() {
   const { items: projects, fetch: fetchProjects, add: addProject, update: updateProject, remove: removeProject } = useProjects2();
-  
+
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [search, setSearch] = useState('');
@@ -19,19 +19,19 @@ export function Projects2() {
     fetchProjects();
   }, []);
 
-  const filteredProjects = projects.filter((p: any) => 
-    p.name.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredProjects = projects.filter((p: any) =>
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
     (p.description && p.description.toLowerCase().includes(search.toLowerCase()))
   );
 
   if (selectedProject) {
     return (
-      <ProjectDetail 
-        project={selectedProject} 
+      <ProjectDetail
+        project={selectedProject}
         onBack={() => {
           setSelectedProject(null);
           fetchProjects(); // refresh list to get updated progress/counts
-        }} 
+        }}
         onUpdate={async (data) => {
           await updateProject(selectedProject.id, data);
           setSelectedProject({ ...selectedProject, ...data });
@@ -44,7 +44,7 @@ export function Projects2() {
 
   if (showCreate) {
     return (
-      <CreateProjectView 
+      <CreateProjectView
         onCancel={() => setShowCreate(false)}
         onCreate={async (data) => {
           await addProject(data);
@@ -62,7 +62,7 @@ export function Projects2() {
           <h1 className="text-2xl font-bold font-mono tracking-tight text-[var(--text-primary)]">Project2 Workspace</h1>
           <p className="text-[var(--text-muted)] mt-1">Detailed personal project workspace</p>
         </div>
-        <button 
+        <button
           onClick={() => setShowCreate(true)}
           className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] text-black rounded font-bold hover:brightness-110"
         >
@@ -73,9 +73,9 @@ export function Projects2() {
       <div className="flex items-center gap-4 mb-6">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search projects..." 
+          <input
+            type="text"
+            placeholder="Search projects..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-[var(--surface)] border border-[var(--border)] rounded focus:border-[var(--accent)] outline-none text-white"
@@ -88,39 +88,38 @@ export function Projects2() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredProjects.map((p: any) => (
-          <div 
-            key={p.id} 
+          <div
+            key={p.id}
             className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-5 cursor-pointer hover:border-[var(--accent)] transition-colors relative group flex flex-col"
             onClick={() => setSelectedProject(p)}
           >
             <div className="flex justify-between items-start mb-2">
               <h3 className="font-bold text-lg text-[var(--text-primary)] line-clamp-1">{p.name}</h3>
-              <span className={`px-2 py-0.5 text-xs rounded font-mono ${
-                p.status === 'COMPLETED' ? 'bg-green-500/20 text-green-400' :
-                p.status === 'IN_PROGRESS' ? 'bg-[var(--accent)]/20 text-[var(--accent)]' :
-                'bg-[var(--surface-3)] text-[var(--text-muted)]'
-              }`}>
+              <span className={`px-2 py-0.5 text-xs rounded font-mono ${p.status === 'COMPLETED' ? 'bg-green-500/20 text-green-400' :
+                  p.status === 'IN_PROGRESS' ? 'bg-[var(--accent)]/20 text-[var(--accent)]' :
+                    'bg-[var(--surface-3)] text-[var(--text-muted)]'
+                }`}>
                 {p.status}
               </span>
             </div>
             <p className="text-[var(--text-muted)] text-sm mb-4 line-clamp-2 flex-1">{p.description || 'No description'}</p>
-            
+
             <div className="space-y-3 mt-auto">
               <div className="flex justify-between text-xs text-[var(--text-muted)]">
                 <span>Progress</span>
                 <span>{p.progress || 0}%</span>
               </div>
               <div className="w-full bg-[var(--surface-3)] h-1.5 rounded-full overflow-hidden">
-                <div 
-                  className="bg-[var(--accent)] h-full transition-all" 
+                <div
+                  className="bg-[var(--accent)] h-full transition-all"
                   style={{ width: `${p.progress || 0}%` }}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between text-xs text-[var(--text-muted)] pt-2 border-t border-[var(--border)]">
                 <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1" title="Files"><Paperclip size={14}/> ?</span>
-                  <span className="flex items-center gap-1" title="Links"><LinkIcon size={14}/> ?</span>
+                  <span className="flex items-center gap-1" title="Files"><Paperclip size={14} /> ?</span>
+                  <span className="flex items-center gap-1" title="Links"><LinkIcon size={14} /> ?</span>
                 </div>
                 <span>{format(new Date(p.updatedAt), 'MMM d, yyyy')}</span>
               </div>
@@ -140,7 +139,7 @@ export function Projects2() {
 function ProjectDetail({ project, onBack, onUpdate, activeTab, setActiveTab }: any) {
   const [content, setContent] = useState(project.detailedContent || '');
   const [saveStatus, setSaveStatus] = useState('');
-  
+
   // Autosave detailed content
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -169,15 +168,15 @@ function ProjectDetail({ project, onBack, onUpdate, activeTab, setActiveTab }: a
             {saveStatus && <span className="text-[var(--accent)]">{saveStatus}</span>}
           </div>
         </div>
-        
+
         {/* Tabs */}
         <div className="flex gap-6 border-b border-[var(--border)]">
-          <TabButton active={activeTab==='overview'} onClick={()=>setActiveTab('overview')} icon={<FileText size={16}/>} label="Overview" />
-          <TabButton active={activeTab==='tasks'} onClick={()=>setActiveTab('tasks')} icon={<CheckSquare size={16}/>} label="Tasks" />
-          <TabButton active={activeTab==='files'} onClick={()=>setActiveTab('files')} icon={<Paperclip size={16}/>} label="Files" />
-          <TabButton active={activeTab==='links'} onClick={()=>setActiveTab('links')} icon={<LinkIcon size={16}/>} label="Links" />
-          <TabButton active={activeTab==='notes'} onClick={()=>setActiveTab('notes')} icon={<FileText size={16}/>} label="Notes" />
-          <TabButton active={activeTab==='timeline'} onClick={()=>setActiveTab('timeline')} icon={<Clock size={16}/>} label="Timeline" />
+          <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<FileText size={16} />} label="Overview" />
+          <TabButton active={activeTab === 'tasks'} onClick={() => setActiveTab('tasks')} icon={<CheckSquare size={16} />} label="Tasks" />
+          <TabButton active={activeTab === 'files'} onClick={() => setActiveTab('files')} icon={<Paperclip size={16} />} label="Files" />
+          <TabButton active={activeTab === 'links'} onClick={() => setActiveTab('links')} icon={<LinkIcon size={16} />} label="Links" />
+          <TabButton active={activeTab === 'notes'} onClick={() => setActiveTab('notes')} icon={<FileText size={16} />} label="Notes" />
+          <TabButton active={activeTab === 'timeline'} onClick={() => setActiveTab('timeline')} icon={<Clock size={16} />} label="Timeline" />
         </div>
       </div>
 
@@ -208,11 +207,10 @@ function TabButton({ active, onClick, icon, label }: any) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 pb-3 border-b-2 transition-colors ${
-        active 
-          ? 'border-[var(--accent)] text-[var(--accent)]' 
+      className={`flex items-center gap-2 pb-3 border-b-2 transition-colors ${active
+          ? 'border-[var(--accent)] text-[var(--accent)]'
           : 'border-transparent text-[var(--text-muted)] hover:text-white hover:border-[var(--surface-3)]'
-      }`}
+        }`}
     >
       {icon}
       <span>{label}</span>
@@ -222,7 +220,7 @@ function TabButton({ active, onClick, icon, label }: any) {
 
 function RichTextEditor({ value, onChange }: { value: string, onChange: (v: string) => void }) {
   const editorRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     if (editorRef.current && editorRef.current.innerHTML !== value) {
       editorRef.current.innerHTML = value;
@@ -257,11 +255,11 @@ function RichTextEditor({ value, onChange }: { value: string, onChange: (v: stri
         <button type="button" onClick={() => {
           const url = prompt('Enter URL:');
           if (url) exec('createLink', url);
-        }} className="px-2 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 flex items-center gap-1"><LinkIcon size={12}/> Link</button>
+        }} className="px-2 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 flex items-center gap-1"><LinkIcon size={12} /> Link</button>
       </div>
-      <div 
+      <div
         ref={editorRef}
-        contentEditable 
+        contentEditable
         onInput={handleInput}
         className="flex-1 p-6 outline-none overflow-y-auto prose max-w-none"
         style={{ minHeight: '300px' }}
@@ -311,7 +309,7 @@ function ProjectFiles({ projectId }: { projectId: string }) {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div 
+      <div
         onDragOver={(e) => e.preventDefault()}
         onDrop={onFileDrop}
         className="border-2 border-dashed border-[var(--border)] rounded-lg p-10 flex flex-col items-center justify-center text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors cursor-pointer"
@@ -320,14 +318,14 @@ function ProjectFiles({ projectId }: { projectId: string }) {
         <Download size={32} className="mb-2" />
         <p className="font-bold">Click or drag files here to upload</p>
         <p className="text-sm opacity-70">Supports PDF, DOCX, Images, ZIP, etc.</p>
-        <input 
-          id="file-upload" 
-          type="file" 
-          multiple 
-          className="hidden" 
+        <input
+          id="file-upload"
+          type="file"
+          multiple
+          className="hidden"
           onChange={(e) => {
             if (e.target.files) handleFiles(Array.from(e.target.files));
-          }} 
+          }}
         />
       </div>
 
@@ -410,10 +408,10 @@ function ProjectLinks({ projectId }: { projectId: string }) {
           <div key={link.id} className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-4 flex flex-col">
             <div className="flex justify-between items-start mb-2">
               <h3 className="font-bold flex items-center gap-2">
-                <LinkIcon size={16} className="text-[var(--accent)]" /> 
+                <LinkIcon size={16} className="text-[var(--accent)]" />
                 {link.title}
               </h3>
-              <button onClick={() => deleteLink(link.id)} className="text-[var(--text-muted)] hover:text-red-400"><Trash2 size={14}/></button>
+              <button onClick={() => deleteLink(link.id)} className="text-[var(--text-muted)] hover:text-red-400"><Trash2 size={14} /></button>
             </div>
             <p className="text-sm text-[var(--text-muted)] mb-3 flex-1">{link.description}</p>
             <a href={link.url} target="_blank" rel="noreferrer" className="text-[var(--accent)] text-sm flex items-center gap-1 hover:underline truncate">
@@ -430,10 +428,10 @@ function ProjectLinks({ projectId }: { projectId: string }) {
       )}
 
       {showAdd && (
-        <AddLinkModal 
-          projectId={projectId} 
-          onClose={() => setShowAdd(false)} 
-          onAdded={() => { setShowAdd(false); fetchLinks(); }} 
+        <AddLinkModal
+          projectId={projectId}
+          onClose={() => setShowAdd(false)}
+          onAdded={() => { setShowAdd(false); fetchLinks(); }}
         />
       )}
     </div>
@@ -459,19 +457,19 @@ function AddLinkModal({ projectId, onClose, onAdded }: any) {
         <div className="space-y-4 mb-6">
           <div>
             <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Title *</label>
-            <input required type="text" value={title} onChange={e=>setTitle(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white" />
+            <input required type="text" value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white" />
           </div>
           <div>
             <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">URL *</label>
-            <input required type="url" value={url} onChange={e=>setUrl(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white" />
+            <input required type="url" value={url} onChange={e => setUrl(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white" />
           </div>
           <div>
             <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Description</label>
-            <input type="text" value={desc} onChange={e=>setDesc(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white" />
+            <input type="text" value={desc} onChange={e => setDesc(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white" />
           </div>
           <div>
             <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Category</label>
-            <select value={category} onChange={e=>setCategory(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white">
+            <select value={category} onChange={e => setCategory(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white">
               <option value="">None</option>
               <option value="GitHub">GitHub</option>
               <option value="Documentation">Documentation</option>
@@ -523,52 +521,52 @@ function CreateProjectView({ onCancel, onCreate }: any) {
         <button onClick={onCancel} className="text-[var(--text-muted)] hover:text-white">← Back</button>
         <h1 className="text-2xl font-bold font-mono text-[var(--text-primary)]">Create Project2</h1>
       </div>
-      
+
       <div className="p-8 max-w-3xl mx-auto w-full">
         <form onSubmit={submit} className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-6 shadow-2xl">
           <div className="space-y-6 mb-8">
-          <div>
-            <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Project Name *</label>
-            <input required autoFocus type="text" value={formData.name} onChange={e=>setFormData({...formData, name: e.target.value})} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white outline-none focus:border-[var(--accent)]" />
-          </div>
-          <div>
-            <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Short Description</label>
-            <textarea value={formData.description} onChange={e=>setFormData({...formData, description: e.target.value})} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white outline-none focus:border-[var(--accent)] h-20 resize-none" />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Status</label>
-              <select value={formData.status} onChange={e=>setFormData({...formData, status: e.target.value})} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white">
-                <option value="PLANNING">PLANNING</option>
-                <option value="IN_PROGRESS">IN PROGRESS</option>
-                <option value="COMPLETED">COMPLETED</option>
-              </select>
+              <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Project Name *</label>
+              <input required autoFocus type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white outline-none focus:border-[var(--accent)]" />
             </div>
             <div>
-              <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Priority</label>
-              <select value={formData.priority} onChange={e=>setFormData({...formData, priority: e.target.value})} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white">
-                <option value="LOW">LOW</option>
-                <option value="MEDIUM">MEDIUM</option>
-                <option value="HIGH">HIGH</option>
-              </select>
+              <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Short Description</label>
+              <textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white outline-none focus:border-[var(--accent)] h-20 resize-none" />
             </div>
-            <div>
-              <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Start Date</label>
-              <input type="date" value={formData.startDate} onChange={e=>setFormData({...formData, startDate: e.target.value})} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white" />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Status</label>
+                <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white">
+                  <option value="PLANNING">PLANNING</option>
+                  <option value="IN_PROGRESS">IN PROGRESS</option>
+                  <option value="COMPLETED">COMPLETED</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Priority</label>
+                <select value={formData.priority} onChange={e => setFormData({ ...formData, priority: e.target.value })} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white">
+                  <option value="LOW">LOW</option>
+                  <option value="MEDIUM">MEDIUM</option>
+                  <option value="HIGH">HIGH</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Start Date</label>
+                <input type="date" value={formData.startDate} onChange={e => setFormData({ ...formData, startDate: e.target.value })} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white" />
+              </div>
+              <div>
+                <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Due Date</label>
+                <input type="date" value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white" />
+              </div>
+              <div>
+                <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Category</label>
+                <input type="text" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white" placeholder="e.g. Work, Personal" />
+              </div>
+              <div>
+                <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Tags (comma separated)</label>
+                <input type="text" value={formData.tags} onChange={e => setFormData({ ...formData, tags: e.target.value })} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white" placeholder="e.g. react, node, api" />
+              </div>
             </div>
-            <div>
-              <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Due Date</label>
-              <input type="date" value={formData.dueDate} onChange={e=>setFormData({...formData, dueDate: e.target.value})} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white" />
-            </div>
-            <div>
-              <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Category</label>
-              <input type="text" value={formData.category} onChange={e=>setFormData({...formData, category: e.target.value})} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white" placeholder="e.g. Work, Personal" />
-            </div>
-            <div>
-              <label className="block text-xs font-mono text-[var(--text-muted)] mb-1">Tags (comma separated)</label>
-              <input type="text" value={formData.tags} onChange={e=>setFormData({...formData, tags: e.target.value})} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-white" placeholder="e.g. react, node, api" />
-            </div>
-          </div>
           </div>
           <div className="flex justify-end gap-3 pt-6 border-t border-[var(--border)]">
             <button type="button" onClick={onCancel} className="px-6 py-2 text-[var(--text-muted)] hover:text-white rounded">Cancel</button>
