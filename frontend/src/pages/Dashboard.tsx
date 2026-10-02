@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useTasks, useProjects, useGoals, useApplications, useActivity } from '../stores';
 import { CheckCircle2, Circle, Activity as ActivityIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { AnalyticsCharts } from '../components/AnalyticsCharts';
 
 export function Dashboard() {
@@ -9,6 +10,7 @@ export function Dashboard() {
   const { items: goals, fetch: fetchGoals } = useGoals();
   const { items: applications, fetch: fetchApps } = useApplications();
   const { items: activities, fetch: fetchActivities } = useActivity();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchTasks();
@@ -48,12 +50,16 @@ export function Dashboard() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Active Tasks', count: activeTasks.length, color: 'var(--accent)' },
-          { label: 'Active Projects', count: activeProjects.length, color: 'var(--info)' },
-          { label: 'Active Applications', count: activeApps.length, color: 'var(--warning)' },
-          { label: 'Active Goals', count: activeGoals.length, color: 'var(--purple)' },
+          { label: 'Active Tasks', count: activeTasks.length, color: 'var(--accent)', path: '/tasks' },
+          { label: 'Active Projects', count: activeProjects.length, color: 'var(--info)', path: '/projects' },
+          { label: 'Active Applications', count: activeApps.length, color: 'var(--warning)', path: '/applications' },
+          { label: 'Active Goals', count: activeGoals.length, color: 'var(--purple)', path: '/goals' },
         ].map(stat => (
-          <div key={stat.label} className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-4 flex flex-col justify-between hover:border-[var(--text-muted)] transition-colors">
+          <div 
+            key={stat.label} 
+            onClick={() => navigate(stat.path)}
+            className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-4 flex flex-col justify-between hover:border-[var(--text-muted)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer"
+          >
             <span className="text-sm text-[var(--text-muted)] font-bold">{stat.label}</span>
             <span className="text-4xl font-mono font-bold mt-2" style={{ color: stat.color }}>{stat.count}</span>
           </div>
@@ -64,7 +70,9 @@ export function Dashboard() {
         <div className="lg:col-span-2 space-y-6">
           {/* Top Tasks */}
           <div className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-4">
-            <h2 className="font-bold text-lg mb-4 text-[var(--accent)]">Top Priority Tasks</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="font-bold text-lg text-[var(--accent)] cursor-pointer hover:underline" onClick={() => navigate('/tasks')}>Top Priority Tasks</h2>
+            </div>
             <div className="space-y-2">
               {topTasks.length === 0 ? <p className="text-[var(--text-muted)] text-sm">No active tasks.</p> : 
                topTasks.map((task: any) => (
@@ -89,7 +97,7 @@ export function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Active Projects */}
             <div className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-4">
-              <h2 className="font-bold mb-4 text-[var(--info)]">Active Projects</h2>
+              <h2 className="font-bold mb-4 text-[var(--info)] cursor-pointer hover:underline" onClick={() => navigate('/projects')}>Active Projects</h2>
               <div className="space-y-3">
                 {activeProjects.slice(0, 4).map((project: any) => (
                   <div key={project.id} className="bg-[var(--surface-2)] p-3 rounded border border-[var(--border)]">
@@ -107,7 +115,7 @@ export function Dashboard() {
 
             {/* Active Goals */}
             <div className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-4">
-              <h2 className="font-bold mb-4 text-[var(--purple)]">Active Goals</h2>
+              <h2 className="font-bold mb-4 text-[var(--purple)] cursor-pointer hover:underline" onClick={() => navigate('/goals')}>Active Goals</h2>
               <div className="space-y-3">
                 {activeGoals.slice(0, 4).map((goal: any) => (
                   <div key={goal.id} className="bg-[var(--surface-2)] p-3 rounded border border-[var(--border)]">

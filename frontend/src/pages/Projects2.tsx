@@ -159,22 +159,34 @@ export function Projects2() {
 
 function ProjectDetail({ project, onBack, onUpdate, onDelete, activeTab, setActiveTab }: any) {
   const [content, setContent] = useState(project.detailedContent || '');
+  const [tasksContent, setTasksContent] = useState(project.tasksContent || '');
+  const [notesContent, setNotesContent] = useState(project.notesContent || '');
+  const [timelineContent, setTimelineContent] = useState(project.timelineContent || '');
   const [saveStatus, setSaveStatus] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
-  // Autosave detailed content
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (content !== project.detailedContent) {
+      const hasChanges = content !== (project.detailedContent || '') ||
+                         tasksContent !== (project.tasksContent || '') ||
+                         notesContent !== (project.notesContent || '') ||
+                         timelineContent !== (project.timelineContent || '');
+      
+      if (hasChanges) {
         setSaveStatus('Saving...');
-        onUpdate({ detailedContent: content }).then(() => {
+        onUpdate({ 
+          detailedContent: content,
+          tasksContent: tasksContent,
+          notesContent: notesContent,
+          timelineContent: timelineContent
+        }).then(() => {
           setSaveStatus('Saved');
           setTimeout(() => setSaveStatus(''), 2000);
         });
       }
     }, 1500);
     return () => clearTimeout(timer);
-  }, [content]);
+  }, [content, tasksContent, notesContent, timelineContent]);
 
   return (
     <div className="flex flex-col h-full bg-[var(--background)] -mx-8 -mb-8">
@@ -225,9 +237,27 @@ function ProjectDetail({ project, onBack, onUpdate, onDelete, activeTab, setActi
 
         {activeTab === 'files' && <ProjectFiles projectId={project.id} />}
         {activeTab === 'links' && <ProjectLinks projectId={project.id} />}
-        {activeTab === 'tasks' && <div className="text-[var(--text-muted)] text-center py-10 border border-dashed border-[var(--border)] rounded-lg">Tasks feature placeholder. Use the main Tasks tab or implement specialized project tasks here.</div>}
-        {activeTab === 'notes' && <div className="text-[var(--text-muted)] text-center py-10 border border-dashed border-[var(--border)] rounded-lg">Notes area. Can integrate standard notes here.</div>}
-        {activeTab === 'timeline' && <div className="text-[var(--text-muted)] text-center py-10 border border-dashed border-[var(--border)] rounded-lg">Timeline area. Important dates and milestones.</div>}
+        {activeTab === 'tasks' && (
+          <div className="max-w-5xl mx-auto h-full flex flex-col">
+            <div className="flex-1 bg-white text-black rounded-lg overflow-hidden flex flex-col">
+              <RichTextEditor value={tasksContent} onChange={setTasksContent} />
+            </div>
+          </div>
+        )}
+        {activeTab === 'notes' && (
+          <div className="max-w-5xl mx-auto h-full flex flex-col">
+            <div className="flex-1 bg-white text-black rounded-lg overflow-hidden flex flex-col">
+              <RichTextEditor value={notesContent} onChange={setNotesContent} />
+            </div>
+          </div>
+        )}
+        {activeTab === 'timeline' && (
+          <div className="max-w-5xl mx-auto h-full flex flex-col">
+            <div className="flex-1 bg-white text-black rounded-lg overflow-hidden flex flex-col">
+              <RichTextEditor value={timelineContent} onChange={setTimelineContent} />
+            </div>
+          </div>
+        )}
       </div>
 
       {isEditing && (
@@ -391,7 +421,7 @@ function ProjectFiles({ projectId }: { projectId: string }) {
                 <td className="p-3 text-sm text-[var(--text-muted)]">{(f.size / 1024).toFixed(1)} KB</td>
                 <td className="p-3 text-right">
                   <div className="flex justify-end gap-2">
-                    <a href={`${BASE_URL}${f.url}`} target="_blank" rel="noreferrer" className="p-1.5 text-blue-400 hover:bg-blue-400/20 rounded"><ExternalLink size={16} /></a>
+                    <a href={f.url.startsWith('http') ? f.url : `${BASE_URL}${f.url}`} target="_blank" rel="noreferrer" className="p-1.5 text-blue-400 hover:bg-blue-400/20 rounded"><ExternalLink size={16} /></a>
                     <button onClick={() => deleteFile(f.id)} className="p-1.5 text-red-400 hover:bg-red-400/20 rounded"><Trash2 size={16} /></button>
                   </div>
                 </td>
