@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSystem, useSettings, refreshAllStores } from './stores';
 import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { 
   Terminal, CheckSquare, Folder, FileText, Calendar as CalIcon, 
-  Lightbulb, Briefcase, BookOpen, Table, Target, Activity as ActivityIcon, Settings as SettingsIcon, LayoutDashboard, Monitor, Trash2
+  Lightbulb, Briefcase, BookOpen, Table, Target, Activity as ActivityIcon, Settings as SettingsIcon, LayoutDashboard, Monitor, Trash2, Menu
 } from 'lucide-react';
 import { GenericModule } from './pages/GenericModule';
 import { Dashboard } from './pages/Dashboard';
@@ -49,6 +49,7 @@ const navItems = [
 ];
 
 function Layout({ children }: { children: React.ReactNode }) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { databaseStatus, checkHealth } = useSystem();
   const { settings, fetch: fetchSettings } = useSettings();
   const location = useLocation();
@@ -85,7 +86,7 @@ function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen overflow-hidden text-sm bg-[var(--background)]">
-      <div className="w-64 border-r border-[var(--border)] bg-[var(--surface)] flex flex-col">
+      <div className={`${isSidebarOpen ? 'w-64 border-r border-[var(--border)]' : 'w-0 border-r-0'} transition-all duration-300 bg-[var(--surface)] flex flex-col overflow-hidden whitespace-nowrap`}>
         <div className="p-4 border-b border-[var(--border)]">
           <h1 className="font-mono text-lg tracking-wider text-[var(--accent)] font-bold">DEEP //</h1>
           <p className="text-xs text-[var(--text-muted)] tracking-widest uppercase">Command Center</p>
@@ -126,7 +127,14 @@ function Layout({ children }: { children: React.ReactNode }) {
       </div>
       <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
         <div className="absolute inset-0 grid-background opacity-20 pointer-events-none" />
-        <div className="flex justify-end px-8 py-4 relative z-20">
+        <div className="flex justify-between items-center px-8 py-4 relative z-20">
+          <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 bg-[var(--surface)] border border-[var(--border)] rounded text-[var(--text-muted)] hover:text-white transition-colors"
+            title="Toggle Sidebar"
+          >
+            <Menu size={20} />
+          </button>
           <NotificationCenter />
         </div>
         <div className="flex-1 overflow-y-auto px-8 pb-8 relative z-10">
