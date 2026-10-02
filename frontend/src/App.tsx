@@ -48,6 +48,33 @@ const navItems = [
   { path: '/settings', label: 'Settings', icon: SettingsIcon },
 ];
 
+function LiveHeader() {
+  const [time, setTime] = useState(new Date());
+  
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const day = time.toLocaleDateString(undefined, { weekday: 'long' });
+  const dateTime = time.toLocaleDateString(undefined, { 
+    month: 'short', day: 'numeric', year: 'numeric', 
+    hour: '2-digit', minute: '2-digit', second: '2-digit' 
+  });
+
+  return (
+    <>
+      <div className="flex-1 flex justify-center">
+        <span className="font-mono font-bold text-lg text-[var(--accent)] tracking-widest uppercase">{day}</span>
+      </div>
+      <div className="flex items-center gap-4">
+        <span className="font-mono text-sm text-[var(--text-muted)]">{dateTime}</span>
+        <NotificationCenter />
+      </div>
+    </>
+  );
+}
+
 function Layout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { databaseStatus, checkHealth } = useSystem();
@@ -128,14 +155,16 @@ function Layout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
         <div className="absolute inset-0 grid-background opacity-20 pointer-events-none" />
         <div className="flex justify-between items-center px-8 py-4 relative z-20">
-          <button 
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 bg-[var(--surface)] border border-[var(--border)] rounded text-[var(--text-muted)] hover:text-white transition-colors"
-            title="Toggle Sidebar"
-          >
-            <Menu size={20} />
-          </button>
-          <NotificationCenter />
+          <div className="flex-1">
+            <button 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 bg-[var(--surface)] border border-[var(--border)] rounded text-[var(--text-muted)] hover:text-white transition-colors"
+              title="Toggle Sidebar"
+            >
+              <Menu size={20} />
+            </button>
+          </div>
+          <LiveHeader />
         </div>
         <div className="flex-1 overflow-y-auto px-8 pb-8 relative z-10">
           {children}
