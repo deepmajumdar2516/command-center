@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0a0f;
+  --surface: #12121a;
+  --surface-2: #1a1a26;
+  --surface-3: #222233;
+  --border: #2a2a3a;
+  --border-strong: #3a3a4a;
+  
+  --text-primary: #e0e0e8;
+  --text-muted: #8888a0;
+  --text-dim: #555570;
+  
+  --accent: #00d4aa;
+  --danger: #ff4466;
+  --warning: #ffaa00;
+  --info: #4488ff;
+  --purple: #aa66ff;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.glass-panel {
+  background-color: rgba(18, 18, 26, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
+
+.grid-background {
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, var(--border) 1px, transparent 1px),
+                    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+}
