@@ -50,6 +50,9 @@ app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 
 app.get('/api/health', async (req, res) => {
   try {
+    if (!process.env.DATABASE_URL) {
+      throw new Error('DATABASE_URL environment variable is missing on Render!');
+    }
     const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout waiting for Neon database to wake up')), 15000));
     await Promise.race([db.execute(sql`SELECT 1`), timeout]);
     res.json({ status: 'ok', database: 'connected' });
