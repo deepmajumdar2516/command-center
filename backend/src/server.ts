@@ -50,11 +50,11 @@ app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 
 app.get('/api/health', async (req, res) => {
   try {
-    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000));
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout waiting for Neon database to wake up')), 15000));
     await Promise.race([db.execute(sql`SELECT 1`), timeout]);
     res.json({ status: 'ok', database: 'connected' });
-  } catch (error) {
-    res.status(500).json({ status: 'ok', database: 'offline' });
+  } catch (error: any) {
+    res.status(200).json({ status: 'error', database: 'offline', error: error.message || String(error) });
   }
 });
 

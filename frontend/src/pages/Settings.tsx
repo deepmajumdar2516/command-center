@@ -136,6 +136,12 @@ export function Settings() {
                   )}
                 </div>
 
+                {dbStatus?.error && (
+                  <div className="mt-2 p-2 bg-[var(--danger)]/10 border border-[var(--danger)]/20 rounded text-xs text-[var(--danger)] font-mono whitespace-pre-wrap">
+                    Error: {dbStatus.error}
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center">
                   <span className="text-[var(--text-muted)] font-bold">PostgreSQL Provider</span>
                   <span className="text-white text-sm font-mono">Neon.tech Serverless</span>
