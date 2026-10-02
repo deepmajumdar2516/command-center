@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { db } from './db';
+import { db, pool } from './db';
 import { sql } from 'drizzle-orm';
 import { activityLogs } from './db/schema';
 
@@ -54,7 +54,7 @@ app.get('/api/health', async (req, res) => {
       throw new Error('DATABASE_URL environment variable is missing on Render!');
     }
     const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout waiting for Neon database to wake up')), 15000));
-    await Promise.race([db.execute(sql`SELECT 1`), timeout]);
+    await Promise.race([pool.query('SELECT 1'), timeout]);
     res.json({ status: 'ok', database: 'connected' });
   } catch (error: any) {
     console.error('[Health Check] Database connection failed:', error);

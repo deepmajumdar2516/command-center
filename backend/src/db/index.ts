@@ -4,9 +4,13 @@ import * as schema from './schema';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const pool = new Pool({
+export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: true
+});
+
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
 });
 
 export const db = drizzle(pool, { schema });
