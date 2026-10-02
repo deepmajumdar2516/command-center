@@ -146,10 +146,16 @@ export const useSystem = create<{
   setDatabaseStatus: (status) => set({ databaseStatus: status }),
   checkHealth: async () => {
     try {
-      await api.health();
+      const res: any = await api.health();
+      if (res.status === 'error') {
+        console.error("Health check returned error:", res.error);
+        set({ databaseStatus: 'offline' });
+        return false;
+      }
       set({ databaseStatus: 'connected' });
       return true;
-    } catch {
+    } catch (err: any) {
+      console.error("Health check fetch failed:", err.message || err);
       set({ databaseStatus: 'offline' });
       return false;
     }

@@ -54,6 +54,7 @@ app.get('/api/health', async (req, res) => {
     await Promise.race([db.execute(sql`SELECT 1`), timeout]);
     res.json({ status: 'ok', database: 'connected' });
   } catch (error: any) {
+    console.error('[Health Check] Database connection failed:', error);
     res.status(200).json({ status: 'error', database: 'offline', error: error.message || String(error) });
   }
 });
