@@ -36,6 +36,13 @@ export function Projects2() {
           await updateProject(selectedProject.id, data);
           setSelectedProject({ ...selectedProject, ...data });
         }}
+        onDelete={async () => {
+          if (window.confirm("Are you sure you want to delete this project?")) {
+            await removeProject(selectedProject.id);
+            setSelectedProject(null);
+            fetchProjects();
+          }
+        }}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
@@ -94,13 +101,27 @@ export function Projects2() {
             onClick={() => setSelectedProject(p)}
           >
             <div className="flex justify-between items-start mb-2">
-              <h3 className="font-bold text-lg text-[var(--text-primary)] line-clamp-1">{p.name}</h3>
-              <span className={`px-2 py-0.5 text-xs rounded font-mono ${p.status === 'COMPLETED' ? 'bg-green-500/20 text-green-400' :
-                  p.status === 'IN_PROGRESS' ? 'bg-[var(--accent)]/20 text-[var(--accent)]' :
-                    'bg-[var(--surface-3)] text-[var(--text-muted)]'
-                }`}>
-                {p.status}
-              </span>
+              <h3 className="font-bold text-lg text-[var(--text-primary)] line-clamp-1 pr-2">{p.name}</h3>
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-0.5 text-xs rounded font-mono ${p.status === 'COMPLETED' ? 'bg-green-500/20 text-green-400' :
+                    p.status === 'IN_PROGRESS' ? 'bg-[var(--accent)]/20 text-[var(--accent)]' :
+                      'bg-[var(--surface-3)] text-[var(--text-muted)]'
+                  }`}>
+                  {p.status}
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (window.confirm('Delete project?')) {
+                      removeProject(p.id).then(() => fetchProjects());
+                    }
+                  }}
+                  className="opacity-0 group-hover:opacity-100 p-1.5 text-red-400 hover:bg-red-400/20 rounded transition-opacity"
+                  title="Delete Project"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
             <p className="text-[var(--text-muted)] text-sm mb-4 line-clamp-2 flex-1">{p.description || 'No description'}</p>
 
@@ -136,9 +157,10 @@ export function Projects2() {
   );
 }
 
-function ProjectDetail({ project, onBack, onUpdate, activeTab, setActiveTab }: any) {
+function ProjectDetail({ project, onBack, onUpdate, onDelete, activeTab, setActiveTab }: any) {
   const [content, setContent] = useState(project.detailedContent || '');
   const [saveStatus, setSaveStatus] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
   // Autosave detailed content
   useEffect(() => {
@@ -164,8 +186,16 @@ function ProjectDetail({ project, onBack, onUpdate, activeTab, setActiveTab }: a
             <h1 className="text-2xl font-bold font-mono text-[var(--text-primary)]">{project.name}</h1>
             <span className="px-2 py-1 text-xs rounded font-mono bg-[var(--surface-3)] text-[var(--text-muted)]">{project.status}</span>
           </div>
-          <div className="text-sm font-mono text-[var(--text-muted)]">
-            {saveStatus && <span className="text-[var(--accent)]">{saveStatus}</span>}
+          <div className="flex items-center gap-4">
+            <div className="text-sm font-mono text-[var(--text-muted)]">
+              {saveStatus && <span className="text-[var(--accent)]">{saveStatus}</span>}
+            </div>
+            <button onClick={() => setIsEditing(true)} className="px-3 py-1.5 bg-[var(--surface-3)] hover:bg-[var(--surface-4)] text-white text-sm rounded flex items-center gap-2">
+              Edit
+            </button>
+            <button onClick={onDelete} className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm rounded flex items-center gap-2">
+              Delete
+            </button>
           </div>
         </div>
 
@@ -199,6 +229,17 @@ function ProjectDetail({ project, onBack, onUpdate, activeTab, setActiveTab }: a
         {activeTab === 'notes' && <div className="text-[var(--text-muted)] text-center py-10 border border-dashed border-[var(--border)] rounded-lg">Notes area. Can integrate standard notes here.</div>}
         {activeTab === 'timeline' && <div className="text-[var(--text-muted)] text-center py-10 border border-dashed border-[var(--border)] rounded-lg">Timeline area. Important dates and milestones.</div>}
       </div>
+
+      {isEditing && (
+        <CreateProjectView 
+          initialData={project}
+          onCancel={() => setIsEditing(false)}
+          onCreate={async (data: any) => {
+            await onUpdate(data);
+            setIsEditing(false);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -492,16 +533,16 @@ function AddLinkModal({ projectId, onClose, onAdded }: any) {
 
 // ----------------- MODALS -----------------
 
-function CreateProjectView({ onCancel, onCreate }: any) {
+function CreateProjectView({ onCancel, onCreate, initialData }: any) {
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    category: '',
-    status: 'PLANNING',
-    priority: 'MEDIUM',
-    startDate: '',
-    dueDate: '',
-    tags: ''
+    name: initialData?.name || '',
+    description: initialData?.description || '',
+    category: initialData?.category || '',
+    status: initialData?.status || 'PLANNING',
+    priority: initialData?.priority || 'MEDIUM',
+    startDate: initialData?.startDate ? new Date(initialData.startDate).toISOString().split('T')[0] : '',
+    dueDate: initialData?.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : '',
+    tags: initialData?.tags ? initialData.tags.join(', ') : ''
   });
 
   const submit = (e: React.FormEvent) => {
@@ -518,8 +559,8 @@ function CreateProjectView({ onCancel, onCreate }: any) {
   return (
     <div className="flex flex-col h-full bg-[var(--background)] -mx-8 -mb-8 overflow-y-auto">
       <div className="px-8 py-4 border-b border-[var(--border)] bg-[var(--surface)] flex items-center gap-4 sticky top-0 z-20">
-        <button onClick={onCancel} className="text-[var(--text-muted)] hover:text-white">← Back</button>
-        <h1 className="text-2xl font-bold font-mono text-[var(--text-primary)]">Create Project2</h1>
+        <button type="button" onClick={onCancel} className="text-[var(--text-muted)] hover:text-white">← Back</button>
+        <h1 className="text-2xl font-bold font-mono text-[var(--text-primary)]">{initialData ? 'Edit Project' : 'Create Project2'}</h1>
       </div>
 
       <div className="p-8 max-w-3xl mx-auto w-full">
@@ -570,7 +611,7 @@ function CreateProjectView({ onCancel, onCreate }: any) {
           </div>
           <div className="flex justify-end gap-3 pt-6 border-t border-[var(--border)]">
             <button type="button" onClick={onCancel} className="px-6 py-2 text-[var(--text-muted)] hover:text-white rounded">Cancel</button>
-            <button type="submit" className="px-6 py-2 bg-[var(--accent)] text-black font-bold rounded">Create Project</button>
+            <button type="submit" className="px-6 py-2 bg-[var(--accent)] text-black font-bold rounded">{initialData ? 'Save Changes' : 'Create Project'}</button>
           </div>
         </form>
       </div>
