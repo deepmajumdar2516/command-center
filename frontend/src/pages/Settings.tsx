@@ -12,8 +12,9 @@ export function Settings() {
 
   useEffect(() => {
     fetchSettings();
-    fetch('/api/health').then(r => r.json()).catch(() => ({ status: 'error', database: 'disconnected' }))
-      .then(h => setDbStatus(h));
+    api.health()
+      .then((h: any) => setDbStatus(h))
+      .catch(() => setDbStatus({ status: 'error', database: 'disconnected' }));
   }, [fetchSettings]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

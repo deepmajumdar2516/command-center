@@ -3,6 +3,7 @@ export const BASE_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_
 
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const response = await fetch(`${API_URL}${endpoint}`, {
+    credentials: 'same-origin',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -44,6 +45,7 @@ export const api = {
       formData.append('file', file);
       const response = await fetch(`${API_URL}/project2Files`, {
         method: 'POST',
+        credentials: 'same-origin',
         body: formData,
       });
       if (!response.ok) throw new Error('Upload failed');

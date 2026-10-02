@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Folder, CheckSquare, Calendar, FileText, Lightbulb, Briefcase, BookOpen, Target, Settings, X, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from '../services/api';
+import { API_URL, apiFetch } from '../services/api';
 
 const ICONS: Record<string, React.ReactNode> = {
   task: <CheckSquare size={16} />,
@@ -63,8 +63,7 @@ export function CommandPalette() {
     }
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`);
-        const data = await res.json();
+        const data = await apiFetch(`/search?q=${encodeURIComponent(query)}`);
         setResults(data);
         setSelectedIndex(0);
       } catch (err) {
