@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
 import { sql, isNull, and, gte } from 'drizzle-orm';
-import { tasks, projects, learningItems, applications, goals } from '../db/schema';
+import { tasks, projects, projects2, learningItems, applications, goals } from '../db/schema';
 
 export const analyticsRouter = Router();
 
@@ -26,13 +26,22 @@ analyticsRouter.get('/', async (req, res) => {
     .from(learningItems)
     .where(notDeleted(learningItems));
 
-    // Project progress
-    const projectProgress = await db.select({
+    // Project progress (both projects and projects2)
+    const p1Progress = await db.select({
       name: projects.name,
       progress: projects.progress
     })
     .from(projects)
     .where(notDeleted(projects));
+
+    const p2Progress = await db.select({
+      name: projects2.name,
+      progress: projects2.progress
+    })
+    .from(projects2)
+    .where(notDeleted(projects2));
+
+    const projectProgress = [...p1Progress, ...p2Progress];
 
     // Application statuses
     const appStatuses = await db.select({

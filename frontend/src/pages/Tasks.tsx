@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTasks } from '../stores';
 import { Plus, Search, Trash2, CheckCircle2, Circle, Edit2 } from 'lucide-react';
+import { format } from 'date-fns';
+import { extractDateFromText } from '../utils/dateExtractor';
 
 export function Tasks() {
   const { items, fetch, add, update, remove, loading } = useTasks();
@@ -16,12 +18,27 @@ export function Tasks() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const title = formData.get('title') as string;
+    const description = (formData.get('description') as string) || '';
+    const rawDueDate = formData.get('dueDate') as string;
+
+    let dueDate: string | undefined;
+    if (rawDueDate) {
+      const [y, m, d] = rawDueDate.split('-').map(Number);
+      dueDate = new Date(y, m - 1, d, 12, 0, 0).toISOString();
+    } else {
+      const extracted = extractDateFromText(`${title} ${description}`);
+      if (extracted) {
+        dueDate = extracted.toISOString();
+      }
+    }
+
     const data = {
-      title: formData.get('title') as string,
-      description: formData.get('description') as string,
+      title,
+      description,
       status: formData.get('status') as string,
       priority: formData.get('priority') as string,
-      dueDate: formData.get('dueDate') ? new Date(formData.get('dueDate') as string).toISOString() : undefined,
+      dueDate,
     };
     
     if (editingTask) {
@@ -95,7 +112,7 @@ export function Tasks() {
                 {task.description && <p className="text-sm text-[var(--text-muted)] mt-1">{task.description}</p>}
                 <div className="flex gap-2 mt-2 text-xs">
                   <span className="px-2 py-0.5 rounded bg-[var(--surface-3)] text-[var(--text-muted)]">{task.priority}</span>
-                  {task.dueDate && <span className="px-2 py-0.5 rounded bg-[var(--surface-3)] text-[var(--text-muted)]">Due: {new Date(task.dueDate).toLocaleDateString()}</span>}
+                  {task.dueDate && <span className="px-2 py-0.5 rounded bg-[var(--surface-3)] text-[var(--text-muted)]">Due: {format(new Date(task.dueDate), 'MMM d, yyyy')}</span>}
                 </div>
               </div>
               <div className="flex gap-2">
@@ -142,8 +159,13 @@ export function Tasks() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm text-[var(--text-muted)] mb-1">Due Date</label>
-                <input type="date" name="dueDate" defaultValue={editingTask?.dueDate?.split('T')[0]} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-[var(--text-primary)] outline-none" />
+                <label className="block text-sm text-[var(--text-muted)] mb-1">Due Date (or mention date in title/description)</label>
+                <input 
+                  type="date" 
+                  name="dueDate" 
+                  defaultValue={editingTask?.dueDate ? format(new Date(editingTask.dueDate), 'yyyy-MM-dd') : ''} 
+                  className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded px-3 py-2 text-[var(--text-primary)] outline-none" 
+                />
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-6">

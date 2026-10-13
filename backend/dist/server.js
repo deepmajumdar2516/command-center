@@ -7,7 +7,6 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const db_1 = require("./db");
-const drizzle_orm_1 = require("drizzle-orm");
 const tasks_1 = __importDefault(require("./routes/tasks"));
 const projects_1 = __importDefault(require("./routes/projects"));
 const projects2_1 = require("./routes/projects2");
@@ -45,12 +44,16 @@ if (process.env.AUTH_USERNAME && process.env.AUTH_PASSWORD) {
 app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../../uploads')));
 app.get('/api/health', async (req, res) => {
     try {
-        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000));
-        await Promise.race([db_1.db.execute((0, drizzle_orm_1.sql) `SELECT 1`), timeout]);
+        if (!process.env.DATABASE_URL) {
+            throw new Error('DATABASE_URL environment variable is missing on Render!');
+        }
+        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout waiting for Neon database to wake up')), 15000));
+        await Promise.race([db_1.pool.query('SELECT 1'), timeout]);
         res.json({ status: 'ok', database: 'connected' });
     }
     catch (error) {
-        res.status(500).json({ status: 'ok', database: 'offline' });
+        console.error('[Health Check] Database connection failed:', error);
+        res.status(200).json({ status: 'error', database: 'offline', error: error.message || String(error) });
     }
 });
 app.use('/api/tasks', tasks_1.default);

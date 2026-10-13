@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
 import { ilike, or, and, isNull } from 'drizzle-orm';
-import { tasks, projects, notes, ideas, applications, learningItems, goals, calendarEvents, worksheets } from '../db/schema';
+import { tasks, projects, projects2, notes, ideas, applications, learningItems, goals, calendarEvents, worksheets } from '../db/schema';
 
 export const searchRouter = Router();
 
@@ -29,6 +29,12 @@ searchRouter.get('/', async (req, res) => {
       and(notDeleted(projects), or(ilike(projects.name, searchPattern), ilike(projects.description, searchPattern)))
     ).limit(5);
     foundProjects.forEach(p => results.push({ id: p.id, type: 'project', title: p.name, subtitle: p.status, date: p.targetDate }));
+
+    // 2b. Project2
+    const foundProjects2 = await db.select().from(projects2).where(
+      and(notDeleted(projects2), or(ilike(projects2.name, searchPattern), ilike(projects2.description, searchPattern)))
+    ).limit(5);
+    foundProjects2.forEach(p => results.push({ id: p.id, type: 'project2', title: p.name, subtitle: `Project2 • ${p.status}`, date: p.dueDate }));
 
     // 3. Notes
     const foundNotes = await db.select().from(notes).where(

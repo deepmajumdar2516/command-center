@@ -36,14 +36,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.db = void 0;
+exports.db = exports.pool = void 0;
 const node_postgres_1 = require("drizzle-orm/node-postgres");
 const pg_1 = require("pg");
 const schema = __importStar(require("./schema"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const pool = new pg_1.Pool({
+exports.pool = new pg_1.Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: true
 });
-exports.db = (0, node_postgres_1.drizzle)(pool, { schema });
+exports.pool.on('error', (err) => {
+    console.error('Unexpected error on idle client', err);
+});
+exports.db = (0, node_postgres_1.drizzle)(exports.pool, { schema });

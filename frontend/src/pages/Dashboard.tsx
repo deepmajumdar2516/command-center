@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useTasks, useProjects, useGoals, useApplications, useActivity } from '../stores';
+import { useTasks, useProjects, useProjects2, useGoals, useApplications, useActivity } from '../stores';
 import { CheckCircle2, Circle, Activity as ActivityIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AnalyticsCharts } from '../components/AnalyticsCharts';
@@ -7,6 +7,7 @@ import { AnalyticsCharts } from '../components/AnalyticsCharts';
 export function Dashboard() {
   const { items: tasks, fetch: fetchTasks, update: updateTask } = useTasks();
   const { items: projects, fetch: fetchProjects } = useProjects();
+  const { items: projects2, fetch: fetchProjects2 } = useProjects2();
   const { items: goals, fetch: fetchGoals } = useGoals();
   const { items: applications, fetch: fetchApps } = useApplications();
   const { items: activities, fetch: fetchActivities } = useActivity();
@@ -15,6 +16,7 @@ export function Dashboard() {
   useEffect(() => {
     fetchTasks();
     fetchProjects();
+    fetchProjects2();
     fetchGoals();
     fetchApps();
     fetchActivities();
@@ -30,7 +32,22 @@ export function Dashboard() {
   };
 
   const activeTasks = tasks.filter((t: any) => t.status !== 'COMPLETED' && !t.archived);
-  const activeProjects = projects.filter((p: any) => p.status === 'ACTIVE' || p.status === 'PLANNING');
+
+  const isProjectActive = (status: string) => {
+    const s = (status || '').toUpperCase();
+    return s === 'ACTIVE' || s === 'PLANNING' || s === 'IN_PROGRESS';
+  };
+
+  const activeRegularProjects = projects
+    .filter((p: any) => !p.deletedAt && isProjectActive(p.status))
+    .map((p: any) => ({ ...p, isProject2: false, targetPath: '/projects', badgeLabel: 'Projects' }));
+
+  const activeProjects2Items = projects2
+    .filter((p: any) => !p.deletedAt && isProjectActive(p.status))
+    .map((p: any) => ({ ...p, isProject2: true, targetPath: '/projects2', badgeLabel: 'Project2' }));
+
+  const activeProjects = [...activeRegularProjects, ...activeProjects2Items];
+
   const activeApps = applications.filter((a: any) => a.status !== 'REJECTED' && a.status !== 'WITHDRAWN');
   const activeGoals = goals.filter((g: any) => g.status === 'ACTIVE');
 
@@ -97,19 +114,45 @@ export function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Active Projects */}
             <div className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-4">
-              <h2 className="font-bold mb-4 text-[var(--info)] cursor-pointer hover:underline" onClick={() => navigate('/projects')}>Active Projects</h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="font-bold text-[var(--info)] cursor-pointer hover:underline" onClick={() => navigate('/projects')}>Active Projects</h2>
+                <div className="flex items-center gap-2 text-xs">
+                  <button onClick={() => navigate('/projects')} className="text-[var(--text-muted)] hover:text-white transition-colors">Projects</button>
+                  <span className="text-[var(--border)]">/</span>
+                  <button onClick={() => navigate('/projects2')} className="text-[var(--accent)] hover:underline font-mono">Project2</button>
+                </div>
+              </div>
               <div className="space-y-3">
-                {activeProjects.slice(0, 4).map((project: any) => (
-                  <div key={project.id} className="bg-[var(--surface-2)] p-3 rounded border border-[var(--border)]">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-bold">{project.name}</span>
-                      <span className="text-[var(--info)] font-mono">{project.progress}%</span>
+                {activeProjects.length === 0 ? (
+                  <p className="text-[var(--text-muted)] text-sm">No active projects.</p>
+                ) : (
+                  activeProjects.slice(0, 6).map((project: any) => (
+                    <div 
+                      key={`${project.isProject2 ? 'p2' : 'p1'}-${project.id}`} 
+                      onClick={() => navigate(project.targetPath)}
+                      className="bg-[var(--surface-2)] p-3 rounded border border-[var(--border)] hover:border-[var(--info)] transition-colors cursor-pointer group"
+                    >
+                      <div className="flex justify-between items-center text-sm mb-1">
+                        <div className="flex items-center gap-2 truncate pr-2">
+                          <span className="font-bold truncate text-[var(--text-primary)] group-hover:text-[var(--info)] transition-colors">{project.name}</span>
+                          {project.isProject2 ? (
+                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/30 shrink-0">
+                              Project2
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--surface-3)] text-[var(--text-muted)] shrink-0">
+                              Projects
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[var(--info)] font-mono text-xs shrink-0">{project.progress || 0}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-[var(--surface-3)] rounded-full overflow-hidden">
+                        <div className="h-full bg-[var(--info)] transition-all" style={{ width: `${project.progress || 0}%` }} />
+                      </div>
                     </div>
-                    <div className="h-1.5 w-full bg-[var(--surface-3)] rounded-full overflow-hidden">
-                      <div className="h-full bg-[var(--info)]" style={{ width: `${project.progress}%` }} />
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 

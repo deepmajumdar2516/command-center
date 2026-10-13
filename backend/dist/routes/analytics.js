@@ -24,13 +24,20 @@ exports.analyticsRouter.get('/', async (req, res) => {
         })
             .from(schema_1.learningItems)
             .where(notDeleted(schema_1.learningItems));
-        // Project progress
-        const projectProgress = await db_1.db.select({
+        // Project progress (both projects and projects2)
+        const p1Progress = await db_1.db.select({
             name: schema_1.projects.name,
             progress: schema_1.projects.progress
         })
             .from(schema_1.projects)
             .where(notDeleted(schema_1.projects));
+        const p2Progress = await db_1.db.select({
+            name: schema_1.projects2.name,
+            progress: schema_1.projects2.progress
+        })
+            .from(schema_1.projects2)
+            .where(notDeleted(schema_1.projects2));
+        const projectProgress = [...p1Progress, ...p2Progress];
         // Application statuses
         const appStatuses = await db_1.db.select({
             status: schema_1.applications.status,

@@ -6,6 +6,7 @@ import { API_URL, apiFetch } from '../services/api';
 const ICONS: Record<string, React.ReactNode> = {
   task: <CheckSquare size={16} />,
   project: <Folder size={16} />,
+  project2: <Folder size={16} />,
   note: <FileText size={16} />,
   idea: <Lightbulb size={16} />,
   application: <Briefcase size={16} />,
@@ -17,6 +18,7 @@ const ICONS: Record<string, React.ReactNode> = {
 const PATHS: Record<string, string> = {
   task: '/tasks',
   project: '/projects',
+  project2: '/projects2',
   note: '/notes',
   idea: '/ideas',
   application: '/applications',

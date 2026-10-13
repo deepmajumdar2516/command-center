@@ -22,6 +22,9 @@ exports.searchRouter.get('/', async (req, res) => {
         // 2. Projects
         const foundProjects = await db_1.db.select().from(schema_1.projects).where((0, drizzle_orm_1.and)(notDeleted(schema_1.projects), (0, drizzle_orm_1.or)((0, drizzle_orm_1.ilike)(schema_1.projects.name, searchPattern), (0, drizzle_orm_1.ilike)(schema_1.projects.description, searchPattern)))).limit(5);
         foundProjects.forEach(p => results.push({ id: p.id, type: 'project', title: p.name, subtitle: p.status, date: p.targetDate }));
+        // 2b. Project2
+        const foundProjects2 = await db_1.db.select().from(schema_1.projects2).where((0, drizzle_orm_1.and)(notDeleted(schema_1.projects2), (0, drizzle_orm_1.or)((0, drizzle_orm_1.ilike)(schema_1.projects2.name, searchPattern), (0, drizzle_orm_1.ilike)(schema_1.projects2.description, searchPattern)))).limit(5);
+        foundProjects2.forEach(p => results.push({ id: p.id, type: 'project2', title: p.name, subtitle: `Project2 • ${p.status}`, date: p.dueDate }));
         // 3. Notes
         const foundNotes = await db_1.db.select().from(schema_1.notes).where((0, drizzle_orm_1.and)(notDeleted(schema_1.notes), (0, drizzle_orm_1.or)((0, drizzle_orm_1.ilike)(schema_1.notes.title, searchPattern), (0, drizzle_orm_1.ilike)(schema_1.notes.content, searchPattern)))).limit(5);
         foundNotes.forEach(n => results.push({ id: n.id, type: 'note', title: n.title, subtitle: n.category, date: n.updatedAt }));

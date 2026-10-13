@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useTasks, useNotes, useProjects, useIdeas } from '../stores';
+import { extractDateFromText } from '../utils/dateExtractor';
 
 export function QuickCapture() {
   const [isOpen, setIsOpen] = useState(false);
   const [type, setType] = useState<'TASK' | 'NOTE' | 'PROJECT' | 'IDEA'>('TASK');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [dueDate, setDueDate] = useState('');
 
   const { add: addTask } = useTasks();
   const { add: addNote } = useNotes();
@@ -30,7 +32,17 @@ export function QuickCapture() {
     e.preventDefault();
     if (!title) return;
 
-    if (type === 'TASK') addTask({ title, description });
+    if (type === 'TASK') {
+      let finalDueDate: string | undefined;
+      if (dueDate) {
+        const [y, m, d] = dueDate.split('-').map(Number);
+        finalDueDate = new Date(y, m - 1, d, 12, 0, 0).toISOString();
+      } else {
+        const extracted = extractDateFromText(`${title} ${description}`);
+        if (extracted) finalDueDate = extracted.toISOString();
+      }
+      addTask({ title, description, dueDate: finalDueDate });
+    }
     if (type === 'NOTE') addNote({ title, content: description });
     if (type === 'PROJECT') addProject({ name: title, description });
     if (type === 'IDEA') addIdea({ title, problem: description });
@@ -38,6 +50,7 @@ export function QuickCapture() {
     setIsOpen(false);
     setTitle('');
     setDescription('');
+    setDueDate('');
   };
 
   if (!isOpen) return null;
@@ -72,9 +85,21 @@ export function QuickCapture() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Details (optional)..."
-            rows={4}
+            rows={3}
             className="bg-transparent text-sm outline-none text-[var(--text-muted)] resize-none"
           />
+          {type === 'TASK' && (
+            <div className="flex items-center gap-3 bg-[var(--surface-2)] p-2 rounded border border-[var(--border)]">
+              <label className="text-xs text-[var(--text-muted)] font-mono">Due Date:</label>
+              <input 
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="bg-transparent text-xs text-[var(--text-primary)] outline-none cursor-pointer"
+              />
+              <span className="text-[10px] text-[var(--text-dim)] ml-auto">(or mention date in title)</span>
+            </div>
+          )}
           <div className="flex justify-between items-center mt-4">
             <span className="text-xs text-[var(--text-dim)] flex gap-4">
               <span><kbd className="font-mono bg-[var(--surface-3)] px-1 py-0.5 rounded mr-1">Esc</kbd> to cancel</span>
