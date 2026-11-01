@@ -40,3 +40,115 @@ body {
   background-image: linear-gradient(to right, var(--border) 1px, transparent 1px),
                     linear-gradient(to bottom, var(--border) 1px, transparent 1px);
 }
+
+/* TipTap ProseMirror Rich Text Editor Styles */
+.tiptap.ProseMirror {
+  outline: none;
+  min-height: 280px;
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.tiptap.ProseMirror p {
+  margin-bottom: 0.75rem;
+}
+
+.tiptap.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--text-dim);
+  pointer-events: none;
+  height: 0;
+}
+
+.tiptap.ProseMirror h1 {
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.tiptap.ProseMirror h2 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.tiptap.ProseMirror h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.tiptap.ProseMirror ul {
+  list-style-type: disc !important;
+  padding-left: 1.75rem !important;
+  margin-bottom: 0.75rem;
+}
+
+.tiptap.ProseMirror ol {
+  list-style-type: decimal !important;
+  padding-left: 1.75rem !important;
+  margin-bottom: 0.75rem;
+}
+
+.tiptap.ProseMirror li {
+  margin-bottom: 0.35rem;
+}
+
+.tiptap.ProseMirror li > p {
+  margin-bottom: 0.25rem;
+}
+
+.tiptap.ProseMirror blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.tiptap.ProseMirror code {
+  background-color: var(--surface-3);
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.25rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+  color: #fbbf24;
+}
+
+.tiptap.ProseMirror pre {
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+}
+
+.tiptap.ProseMirror mark {
+  border-radius: 3px;
+  padding: 0.1em 0.3em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  color: #0b0f19;
+  font-weight: 500;
+}
+
+.tiptap.ProseMirror hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}

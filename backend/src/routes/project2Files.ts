@@ -4,7 +4,7 @@ import path from "path";
 import fs from "fs";
 import { db } from "../db";
 import { project2Files } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { eq, isNull, isNotNull } from "drizzle-orm";
 
 const router = Router();
 
@@ -23,6 +23,30 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
+router.get("/", async (req, res) => {
+  try {
+    let records;
+    if (req.query.deleted === "true") {
+      records = await db.select().from(project2Files).where(isNotNull(project2Files.deletedAt));
+    } else {
+      records = await db.select().from(project2Files).where(isNull(project2Files.deletedAt));
+    }
+    res.json(records);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const records = await db.select().from(project2Files).where(eq(project2Files.id, req.params.id));
+    if (records.length === 0) return res.status(404).json({ error: "Not found" });
+    res.json(records[0]);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 router.post("/", upload.single("file"), async (req, res) => {
   try {
@@ -49,15 +73,34 @@ router.post("/", upload.single("file"), async (req, res) => {
   }
 });
 
+router.put("/:id", async (req, res) => {
+  try {
+    const payload = { ...req.body };
+    const [record] = await db.update(project2Files).set(payload).where(eq(project2Files.id, req.params.id)).returning();
+    if (!record) return res.status(404).json({ error: "Not found" });
+    res.json(record);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.delete("/:id", async (req, res) => {
   try {
     const fileRecord = await db.select().from(project2Files).where(eq(project2Files.id, req.params.id));
     if (fileRecord.length > 0) {
-      const filePath = path.join(__dirname, "../../", fileRecord[0].url);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+      if (req.query.permanent === "true") {
+        const filePath = path.join(__dirname, "../../", fileRecord[0].url);
+        if (fs.existsSync(filePath)) {
+          try {
+            fs.unlinkSync(filePath);
+          } catch (e) {
+            console.error("Failed to delete file from disk:", e);
+          }
+        }
+        await db.delete(project2Files).where(eq(project2Files.id, req.params.id));
+      } else {
+        await db.update(project2Files).set({ deletedAt: new Date() }).where(eq(project2Files.id, req.params.id));
       }
-      await db.delete(project2Files).where(eq(project2Files.id, req.params.id));
     }
     res.json({ success: true });
   } catch (error: any) {
