@@ -360,7 +360,10 @@ export function RichTextEditor({
           </button>
 
           {showHeadingDropdown && (
-            <div className="absolute top-full left-0 mt-1 w-44 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl p-1.5 space-y-1 z-30">
+            <div 
+              onWheel={(e) => e.stopPropagation()}
+              className="absolute top-full left-0 mt-1 w-44 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl p-1.5 space-y-1 z-50 max-h-64 overflow-y-auto overscroll-contain"
+            >
               <button
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
@@ -444,7 +447,10 @@ export function RichTextEditor({
           </button>
 
           {showFontFamilyDropdown && (
-            <div className="absolute top-full left-0 mt-1 w-48 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl p-1.5 space-y-1 z-30">
+            <div 
+              onWheel={(e) => e.stopPropagation()}
+              className="absolute top-full left-0 mt-1 w-48 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl p-1.5 space-y-1 z-50 max-h-64 overflow-y-auto overscroll-contain"
+            >
               {FONT_FAMILIES.map((font) => (
                 <button
                   key={font.value}
@@ -466,7 +472,7 @@ export function RichTextEditor({
         </div>
 
         {/* Font Size Selector & Increase/Decrease */}
-        <div className="flex items-center gap-0.5 bg-[var(--surface-3)] rounded-lg p-0.5" ref={fontSizeRef}>
+        <div className="relative flex items-center gap-0.5 bg-[var(--surface-3)] rounded-lg p-0.5" ref={fontSizeRef}>
           <button
             type="button"
             onMouseDown={(e) => e.preventDefault()}
@@ -499,7 +505,10 @@ export function RichTextEditor({
           </button>
 
           {showFontSizeDropdown && (
-            <div className="absolute top-full left-auto mt-1 w-32 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl p-1.5 space-y-0.5 z-30">
+            <div 
+              onWheel={(e) => e.stopPropagation()}
+              className="absolute top-full left-0 mt-1 w-32 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl p-1.5 space-y-0.5 z-50 max-h-60 overflow-y-auto overscroll-contain"
+            >
               {FONT_SIZE_STEPS.map((size) => (
                 <button
                   key={size}
@@ -603,7 +612,10 @@ export function RichTextEditor({
           </button>
 
           {showColorPicker && (
-            <div className="absolute top-full left-0 mt-1 w-64 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl p-3 z-30 space-y-3">
+            <div 
+              onWheel={(e) => e.stopPropagation()}
+              className="absolute top-full left-0 mt-1 w-64 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl p-3 z-50 space-y-3 max-h-72 overflow-y-auto overscroll-contain"
+            >
               <div className="flex items-center justify-between text-[11px] font-mono text-[var(--text-muted)] uppercase">
                 <span>Text Color</span>
                 <button
@@ -686,7 +698,10 @@ export function RichTextEditor({
           </button>
 
           {showHighlightPicker && (
-            <div className="absolute top-full left-0 mt-1 w-64 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl p-3 z-30 space-y-3">
+            <div 
+              onWheel={(e) => e.stopPropagation()}
+              className="absolute top-full left-0 mt-1 w-64 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl p-3 z-50 space-y-3 max-h-72 overflow-y-auto overscroll-contain"
+            >
               <div className="flex items-center justify-between text-[11px] font-mono text-[var(--text-muted)] uppercase">
                 <span>Highlight Color</span>
                 <button

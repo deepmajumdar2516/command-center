@@ -41,6 +41,22 @@ body {
                     linear-gradient(to bottom, var(--border) 1px, transparent 1px);
 }
 
+/* Custom subtle dark scrollbars for dropdowns, menus, and containers */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface-2);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-dim);
+}
+
 /* TipTap ProseMirror Rich Text Editor Styles */
 .tiptap.ProseMirror {
   outline: none;

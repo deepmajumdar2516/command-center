@@ -681,7 +681,10 @@ export function Worksheets() {
                   </button>
 
                   {activeColorPicker === 'text' && selectedCell && (
-                    <div className="absolute left-0 top-full mt-1 p-2 bg-[var(--surface-2)] border border-[var(--border-strong)] rounded-lg shadow-2xl z-30 w-56 flex flex-col gap-2 backdrop-blur-md">
+                    <div 
+                      onWheel={(e) => e.stopPropagation()}
+                      className="absolute left-0 top-full mt-1 p-2 bg-[var(--surface-2)] border border-[var(--border-strong)] rounded-lg shadow-2xl z-50 w-56 flex flex-col gap-2 backdrop-blur-md max-h-[min(320px,calc(100vh-220px))] overflow-y-auto overscroll-contain"
+                    >
                       <div className="text-[10px] font-mono uppercase text-[var(--text-dim)] font-bold">Text Colors</div>
                       <div className="grid grid-cols-5 gap-1.5">
                         {TEXT_COLORS.map(c => (
@@ -746,7 +749,10 @@ export function Worksheets() {
                   </button>
 
                   {activeColorPicker === 'bg' && selectedCell && (
-                    <div className="absolute left-0 top-full mt-1 p-2 bg-[var(--surface-2)] border border-[var(--border-strong)] rounded-lg shadow-2xl z-30 w-56 flex flex-col gap-2 backdrop-blur-md">
+                    <div 
+                      onWheel={(e) => e.stopPropagation()}
+                      className="absolute left-0 top-full mt-1 p-2 bg-[var(--surface-2)] border border-[var(--border-strong)] rounded-lg shadow-2xl z-50 w-56 flex flex-col gap-2 backdrop-blur-md max-h-[min(320px,calc(100vh-220px))] overflow-y-auto overscroll-contain"
+                    >
                       <div className="text-[10px] font-mono uppercase text-[var(--text-dim)] font-bold">Cell Highlights</div>
                       <div className="grid grid-cols-5 gap-1.5">
                         {HIGHLIGHT_COLORS.map(c => (
@@ -847,7 +853,10 @@ export function Worksheets() {
                   </button>
 
                   {activeColorPicker === 'rowBg' && selectedCell && (
-                    <div className="absolute left-0 top-full mt-1 p-2 bg-[var(--surface-2)] border border-[var(--border-strong)] rounded-lg shadow-2xl z-30 w-56 flex flex-col gap-2 backdrop-blur-md">
+                    <div 
+                      onWheel={(e) => e.stopPropagation()}
+                      className="absolute left-0 top-full mt-1 p-2 bg-[var(--surface-2)] border border-[var(--border-strong)] rounded-lg shadow-2xl z-50 w-56 flex flex-col gap-2 backdrop-blur-md max-h-[min(320px,calc(100vh-220px))] overflow-y-auto overscroll-contain"
+                    >
                       <div className="text-[10px] font-mono uppercase text-[var(--text-dim)] font-bold">Row Highlights</div>
                       <div className="grid grid-cols-5 gap-1.5">
                         {HIGHLIGHT_COLORS.map(c => (
@@ -1028,7 +1037,10 @@ export function Worksheets() {
                                 </button>
 
                                 {activeColMenu === col.id && (
-                                  <div className="absolute right-0 top-full mt-1 w-48 bg-[var(--surface-2)] border border-[var(--border-strong)] rounded-lg shadow-2xl p-1 z-30 text-xs flex flex-col gap-0.5 backdrop-blur-md">
+                                  <div 
+                                    onWheel={(e) => e.stopPropagation()}
+                                    className="absolute right-0 top-full mt-1 w-52 bg-[var(--surface-2)] border border-[var(--border-strong)] rounded-lg shadow-2xl p-1 z-50 text-xs flex flex-col gap-0.5 backdrop-blur-md max-h-[min(340px,calc(100vh-220px))] overflow-y-auto overscroll-contain"
+                                  >
                                     <button
                                       onClick={() => {
                                         setEditingColId(col.id);
@@ -1170,7 +1182,12 @@ export function Worksheets() {
                               </button>
 
                               {activeRowMenu === row.id && (
-                                <div className="absolute left-full top-0 ml-1 w-48 bg-[var(--surface-2)] border border-[var(--border-strong)] rounded-lg shadow-2xl p-1 z-30 text-xs flex flex-col gap-0.5 backdrop-blur-md">
+                                <div 
+                                  onWheel={(e) => e.stopPropagation()}
+                                  className={`absolute left-full ml-1 w-52 bg-[var(--surface-2)] border border-[var(--border-strong)] rounded-lg shadow-2xl p-1 z-50 text-xs flex flex-col gap-0.5 backdrop-blur-md max-h-[min(300px,calc(100vh-220px))] overflow-y-auto overscroll-contain ${
+                                    actualIndex > (activeSheet.rows.length - 4) && actualIndex > 1 ? 'bottom-0' : 'top-0'
+                                  }`}
+                                >
                                   <button
                                     onClick={() => { moveRow(actualIndex, 'up'); setActiveRowMenu(null); }}
                                     disabled={isFirstRow}
